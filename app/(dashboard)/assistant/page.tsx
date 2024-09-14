@@ -20,8 +20,6 @@ function AssistantPage({children}: Props) {
   if (!isSignedIn) {
     return <LandingPage />;
   }
-  const userId = user.id;
-  // ADD IT HERE
   return <AssistantFallback />
 };
 

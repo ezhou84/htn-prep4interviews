@@ -2,10 +2,8 @@ import { mutation, query } from './_generated/server';
 import { v } from "convex/values";
 
 // Query to get all messages from the "messages" table
-export const getMessages = query({
-  handler: async (ctx) => {
-    return await ctx.db.query("messages").collect();
-  }
+export const getMessages = query(async ({ db }) => {
+  return await db.query("messages").collect();
 });
 
 // Mutation to insert a new message into the "messages" table

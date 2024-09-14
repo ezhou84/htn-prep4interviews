@@ -58,6 +58,10 @@ const InterviewForm: React.FC = () => {
 
   const startInterview = async () => {
     setIsLoading(true);
+    if (!user) {
+      console.error("User is not signed in");
+      return;
+    }
     const interviewData = {
       clerkId: user.id,
       interviewType,
