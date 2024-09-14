@@ -15,7 +15,7 @@ const Layout = ({ children }: Props) => {
   const router = useRouter();
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
-      router.push('/assistant');
+      router.push('/');
     }
   }, [isSignedIn, isLoaded, router]);
   return (
