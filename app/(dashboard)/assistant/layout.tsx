@@ -25,7 +25,7 @@ const InterviewForm: React.FC = () => {
   const [language, setLanguage] = useState<string>('');
   const pathname = usePathname();
   const router = useRouter();
-  const createInterview = useMutation(api.saveInterview.create);
+  const createInterview = useMutation(api.interview.create);
 
   const handleAddConcept = () => {
     if (conceptInput && !keyConcepts.includes(conceptInput)) {
@@ -46,7 +46,7 @@ const InterviewForm: React.FC = () => {
     case 'technical':
       isFormValid = isDurationValid && difficulty !== '' && language !== '';
       break;
-    case 'behavioral':
+    case 'behavioural':
       isFormValid = isDurationValid;
       break;
     default:
@@ -90,7 +90,7 @@ const InterviewForm: React.FC = () => {
                 <SelectValue placeholder="Select Interview Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="behavioral">Behavioral Interview</SelectItem>
+                <SelectItem value="behavioural">Behavioural Interview</SelectItem>
                 <SelectItem value="technical">Technical Interview</SelectItem>
               </SelectContent>
             </Select>

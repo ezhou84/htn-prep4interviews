@@ -24,7 +24,11 @@ type Props = {};
 
     const [chatStarted, setChatStarted] = useState(false);
     const [code, setCode] = useState('// Write your code here');
+
+    // Need to send these messages to the backend with convex
     const [messages, setMessages] = useState<{ id: string; text: string; isUser: boolean }[]>([]);
+    
+    
     const [recording, setRecording] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -92,8 +96,8 @@ type Props = {};
             {messages.map((message) => (
               <ChatBubble key={message.id} text={message.text} isUser={message.isUser} />
             ))}
-            {/* <ChatBubble text={`this is so cool. some code is as follows:
-              \`\`\`This is some code but i wonder how wide can we go but how much is the maximum though\`\`\``} isUser={false} /> */}
+            <ChatBubble text={`this is so cool. some code is as follows:
+              \`\`\`This is some code but i wonder how wide can we go but how much is the maximum though\`\`\``} isUser={false} />
 
             {!chatStarted && (
               <div className="absolute inset-0 flex items-center justify-center z-10">
