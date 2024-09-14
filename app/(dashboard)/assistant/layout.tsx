@@ -3,11 +3,13 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from "@/components/ui/label"
+import { Label } from "@/components/ui/label";
 import { usePathname, useRouter } from 'next/navigation';
 import { Select, SelectValue, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import ItemList from '@/components/shared/item-list/ItemList';
-import { InputFile } from '@/components/ui/input-file';
+import { api } from "@/convex/_generated/api";
+import { useMutation } from "convex/react";
+
 type Props = {
   title: string;
   action?: React.ReactNode;
@@ -19,11 +21,11 @@ const InterviewForm: React.FC = () => {
   const [keyConcepts, setKeyConcepts] = useState<string[]>([]);
   const [conceptInput, setConceptInput] = useState<string>('');
   const [difficulty, setDifficulty] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState<string>('');
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [fileError, setFileError] = useState<string>('');
   const pathname = usePathname();
   const router = useRouter();
+  const createInterview = useMutation(api.saveInterview.create);
 
   const handleAddConcept = () => {
     if (conceptInput && !keyConcepts.includes(conceptInput)) {
@@ -39,10 +41,8 @@ const InterviewForm: React.FC = () => {
   const durationValue = parseInt(duration, 10);
   const isDurationValid = !isNaN(durationValue) && durationValue >= 1 && durationValue <= 30;
   let isFormValid = false;
+
   switch (interviewType) {
-    case 'resume':
-      isFormValid = isDurationValid && resumeFile !== null;
-      break;
     case 'technical':
       isFormValid = isDurationValid && difficulty !== '' && language !== '';
       break;
@@ -53,67 +53,49 @@ const InterviewForm: React.FC = () => {
       isFormValid = false;
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("THIS SHIT IS RUNNING")
-    const file = e.target.files?.[0] || null;
-    setFileError('');
-    
-    if (file && file.type === 'application/pdf') {
-      setResumeFile(file);
-      const fileReader = new FileReader();
-      fileReader.onloadend = (e) => {
-        const pdf = e.target?.result;
-        const pdfDoc = new Uint8Array(pdf as ArrayBuffer);
-        const loadingTask = window['pdfjsLib'].getDocument(pdfDoc);
-        loadingTask.promise.then((pdfDoc) => {
-          setResumeFile(file);
-          // if (pdfDoc.numPages > 2) {
-          //   setFileError('The uploaded PDF must be no more than 2 pages.');
-          //   setResumeFile(null);
-          // } else {
-          //   setResumeFile(file);
-          // }
-        });
-      };
-      fileReader.readAsArrayBuffer(file);
-    } else {
-      setFileError('Please upload a valid PDF file.');
-      //setResumeFile(null);
+  const startInterview = async () => {
+    setIsLoading(true);
+    const interviewData = {
+      interviewType,
+      difficulty,
+      language,
+      duration: parseInt(duration, 10),
+      keyConcepts,
+    };
+
+    try {
+      const interviewId = await createInterview(interviewData);
+      router.push(`/assistant/${interviewId}`);
+    } catch (error) {
+      console.error("Failed to save interview:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const startInterview = () => {
-    const interviewId = Math.random().toString(36).substr(2, 9);
-    router.push(`/assistant/${interviewId}`);
-  };
-
   const terminateInterview = () => {
-    console.log('Interview ended');
     router.push('/assistant');
   };
 
   return (
-    <>
-      <div className="flex flex-col justify-around flex-grow pb-10">
-        {pathname === '/assistant' && (
-          <>
-            {/* Interview Type Selection */}
-            <div className="min-w-72">
-              <label htmlFor="interviewType" className="block text-lg font-medium mb-2">
-                Interview Type
-              </label>
-              <Select value={interviewType} onValueChange={setInterviewType}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Interview Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="behavioral">Behavioral Interview</SelectItem>
-                  <SelectItem value="technical">Technical Interview</SelectItem>
-                  <SelectItem value="resume">Resume Screening</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {interviewType === 'technical' && (
+    <div className="flex flex-col justify-around flex-grow pb-10">
+      {pathname === '/assistant' && (
+        <>
+          <div className="min-w-72">
+            <label htmlFor="interviewType" className="block text-lg font-medium mb-2">
+              Interview Type
+            </label>
+            <Select value={interviewType} onValueChange={setInterviewType}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Interview Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="behavioral">Behavioral Interview</SelectItem>
+                <SelectItem value="technical">Technical Interview</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {interviewType === 'technical' && (
             <div>
               <label htmlFor="difficulty" className="block text-lg font-medium mb-2">
                 Difficulty
@@ -129,64 +111,45 @@ const InterviewForm: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
-            )}
-            {/* Language Selection */}
-            {interviewType === 'technical' && (
-              <div>
-                <label htmlFor="language" className="block text-lg font-medium mb-2">
-                  Language
-                </label>
-                <Select value={language} onValueChange={setLanguage}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select Language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="python">Python</SelectItem>
-                    <SelectItem value="c">C</SelectItem>
-                    <SelectItem value="cpp">C++</SelectItem>
-                    <SelectItem value="java">Java</SelectItem>
-                    <SelectItem value="javascript">JavaScript</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            {/* Resume File Upload */}
-            {interviewType === 'resume' && (
-              <div>
-              <Label htmlFor="resumeFile" className="block text-lg font-medium mb-2">
-                Upload Resume{' '}
-                <span className="text-sm font-normal">(PDF, max 2 pages)</span>
-              </Label>
-              <InputFile
-                id="resumeFile"
-                accept=".pdf"
-                onChange={handleFileUpload}
-                className="w-full"
-              />
-              {fileError && <p className="text-red-500 text-sm">{fileError}</p>}
-            </div>
-            )}
-            {/* Duration Input */}
+          )}
+          {interviewType === 'technical' && (
             <div>
-              <Label htmlFor="duration" className="block text-lg font-medium mb-2">
-                Duration (minutes)
-              </Label>
-              <Input
-                type="number"
-                id="duration"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                className="w-full"
-                min="1"
-                max="30"
-                placeholder="1-30"
-              />
-              {!isDurationValid && duration && (
-                <p className="text-red-500 text-sm text-center">Duration must be 1- 30 min!</p>
-              )}
+              <label htmlFor="language" className="block text-lg font-medium mb-2">
+                Language
+              </label>
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="python">Python</SelectItem>
+                  <SelectItem value="c">C</SelectItem>
+                  <SelectItem value="cpp">C++</SelectItem>
+                  <SelectItem value="java">Java</SelectItem>
+                  <SelectItem value="javascript">JavaScript</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-
-            {interviewType === 'technical' && (
+          )}
+          <div>
+            <Label htmlFor="duration" className="block text-lg font-medium mb-2">
+              Duration (minutes)
+            </Label>
+            <Input
+              type="number"
+              id="duration"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              className="w-full"
+              min="1"
+              max="30"
+              placeholder="1-30"
+            />
+            {!isDurationValid && duration && (
+              <p className="text-red-500 text-sm text-center">Duration must be 1-30 min!</p>
+            )}
+          </div>
+          {interviewType === 'technical' && (
             <div>
               <Label className="block text-lg font-medium mb-2">Key Concepts</Label>
               <div className="flex gap-2">
@@ -201,8 +164,6 @@ const InterviewForm: React.FC = () => {
                   Add
                 </Button>
               </div>
-
-              {/* Display added key concepts */}
               <div className="mt-2 flex flex-wrap gap-2">
                 {keyConcepts.map((concept, index) => (
                   <span
@@ -220,29 +181,25 @@ const InterviewForm: React.FC = () => {
                 ))}
               </div>
             </div>
-            )}
-            {/* Begin Interview Button */}
-            <Button
-              className="w-full bg-green-900 hover:bg-green-700 text-white font-bold py-6 px-4 rounded-md"
-              onClick={startInterview}
-              disabled={!isFormValid}
-            >
-              Begin Interview
-            </Button>
-          </>
-        )}
-
-        {/* If the pathname is /assistant/[id], show the End Interview button */}
-        {pathname.startsWith('/assistant/') && pathname !== '/assistant' && (
+          )}
           <Button
-            className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-6 px-4 rounded-md"
-            onClick={terminateInterview}
+            className="w-full bg-green-900 hover:bg-green-700 text-white font-bold py-6 px-4 rounded-md"
+            onClick={startInterview}
+            disabled={!isFormValid || isLoading}
           >
-            End Interview
+            {isLoading ? 'Loading...' : 'Begin Interview'}
           </Button>
-        )}
-      </div>
-    </>
+        </>
+      )}
+      {pathname.startsWith('/assistant/') && pathname !== '/assistant' && (
+        <Button
+          className="min-w-72 w-full bg-red-600 hover:bg-red-500 text-white font-bold py-6 px-4 rounded-md"
+          onClick={terminateInterview}
+        >
+          End Interview
+        </Button>
+      )}
+    </div>
   );
 };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import AssistantContainer from '@/components/shared/assistant/AssistantContainer';
@@ -11,8 +12,15 @@ import ChatBubble from '@/components/shared/ChatBubble';
 type Props = {};
 
   function AssistantIdPage({}: Props) {
+    const { isSignedIn, isLoaded } = useUser();
     const router = useRouter();
     const { theme } = useTheme();
+
+    useEffect(() => {
+      if (isLoaded && !isSignedIn) {
+        router.push('/assistant');
+      }
+    }, [isSignedIn, isLoaded, router]);
 
     const [chatStarted, setChatStarted] = useState(false);
     const [code, setCode] = useState('// Write your code here');
@@ -84,8 +92,8 @@ type Props = {};
             {messages.map((message) => (
               <ChatBubble key={message.id} text={message.text} isUser={message.isUser} />
             ))}
-            <ChatBubble text={`this is so cool. some code is as follows:
-              \`\`\`This is some code but i wonder how wide can we go but how much is the maximum though\`\`\``} isUser={false} />
+            {/* <ChatBubble text={`this is so cool. some code is as follows:
+              \`\`\`This is some code but i wonder how wide can we go but how much is the maximum though\`\`\``} isUser={false} /> */}
 
             {!chatStarted && (
               <div className="absolute inset-0 flex items-center justify-center z-10">

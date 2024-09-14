@@ -1,23 +1,30 @@
-"use client";
+"use client"
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import ItemList from '@/components/shared/item-list/ItemList';
-import AssistantFallback from '@/components/shared/assistant/AssistantFallback';
+import SidebarWrapper from '@/components/shared/sidebar/SidebarWrapper'
+import { AuthLoading } from 'convex/react'
+import LoadingLogo from '@/components/shared/LoadingLogo'
+import React, { useEffect } from 'react'
+import { useUser } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
+import LandingPage from '@/components/LandingPage'
 
-type Props = {}
+type Props = React.PropsWithChildren<{}>
 
-function CommunityPage(props: Props) {
+const Layout = ({ children }: Props) => {
+  const { isSignedIn, isLoaded } = useUser();
   const router = useRouter();
-
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push('/assistant');
+    }
+  }, [isSignedIn, isLoaded, router]);
   return (
     <>
-      <ItemList title="Community">
-        Community Page
-      </ItemList>
-      <AssistantFallback />
+      <main className="h-full w-full pt-3 m-0 bg-blue-500 dark:bg-slate-950">
+        <SidebarWrapper>{children}</SidebarWrapper>
+      </main>
     </>
   )
 }
 
-export default CommunityPage
+export default Layout
