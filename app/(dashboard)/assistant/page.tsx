@@ -8,7 +8,7 @@ import LandingPage from '@/components/LandingPage';
 type Props = React.PropsWithChildren<{}>
 
 function AssistantPage({children}: Props) {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
   const router = useRouter();
 
   useEffect(() => {
@@ -20,6 +20,8 @@ function AssistantPage({children}: Props) {
   if (!isSignedIn) {
     return <LandingPage />;
   }
+  const userId = user.id;
+  // ADD IT HERE
   return <AssistantFallback />
 };
 

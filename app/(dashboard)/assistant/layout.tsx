@@ -9,6 +9,7 @@ import { Select, SelectValue, SelectContent, SelectItem, SelectTrigger } from '@
 import ItemList from '@/components/shared/item-list/ItemList';
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
+import { useUser } from "@clerk/nextjs";
 
 type Props = {
   title: string;
@@ -26,7 +27,7 @@ const InterviewForm: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
   const createInterview = useMutation(api.interview.create);
-
+  
   const handleAddConcept = () => {
     if (conceptInput && !keyConcepts.includes(conceptInput)) {
       setKeyConcepts([...keyConcepts, conceptInput]);
@@ -52,10 +53,13 @@ const InterviewForm: React.FC = () => {
     default:
       isFormValid = false;
   }
+  
+  const { user, isSignedIn } = useUser();
 
   const startInterview = async () => {
     setIsLoading(true);
     const interviewData = {
+      clerkId: user.id,
       interviewType,
       difficulty,
       language,
@@ -72,7 +76,7 @@ const InterviewForm: React.FC = () => {
       setIsLoading(false);
     }
   };
-
+  
   const terminateInterview = () => {
     router.push('/assistant');
   };
