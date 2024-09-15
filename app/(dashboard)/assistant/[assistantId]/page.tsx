@@ -12,6 +12,7 @@ import { useMutation, useQuery } from 'convex/react';
 import { api } from "@/convex/_generated/api";
 import { OpenAI } from 'openai';
 import textToSpeech from '@google-cloud/text-to-speech';
+import { Id } from '@/convex/_generated/dataModel';
 
 type Props = {};
 
@@ -31,7 +32,7 @@ function AssistantIdPage({ }: Props) {
   const createInterview = useMutation(api.interview.create);
   const storeMessageMutation = useMutation(api.messages.storeMessage);
   const path = usePathname();
-  const ourId = path.split('/assistant/')[1];
+  const ourId = path.split('/assistant/')[1] as Id<"interviews">;
   const fetchInterviewData = useQuery(api.interview.getInterviewData, {
     id: ourId,
   });
