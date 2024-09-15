@@ -17,7 +17,7 @@ export const create = mutation({
     }
 
     const id = await ctx.db.insert("interviews", {
-      clerkId: user._id,
+      clerkId: user._id as string,
       interviewType: args.interviewType,
       difficulty: args.difficulty,
       language: args.language,

@@ -11,7 +11,7 @@ export default defineSchema({
   }).index("by_email", ["email"])
     .index("by_clerkId", ["clerkId"]),
   interviews: defineTable({
-    clerkId: v.id("users"),
+    clerkId: v.string(),
     interviewType: v.string(),
     difficulty: v.string(),
     language: v.string(),
