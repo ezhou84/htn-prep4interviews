@@ -83,8 +83,9 @@ const InterviewForm: React.FC = () => {
   };
   
   const terminateInterview = () => {
-    router.push('/assistant');
+    window.location.href = '/assistant';
   };
+  
 
   return (
     <div className="flex flex-col justify-around flex-grow pb-10">

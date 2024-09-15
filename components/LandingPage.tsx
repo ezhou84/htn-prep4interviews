@@ -45,7 +45,7 @@ const LandingPage = () => {
       </motion.div>
 
       <h1 className="text-8xl font-extrabold text-gray-900 dark:text-gray-100 mb-4 z-10 w-4/5">
-        Welcome to Prep4Interviews
+        Welcome to LowkeyPrepped
       </h1>
 
       <p className="text-lg text-gray-900 dark:text-gray-300 mb-8 max-w-2xl z-10">

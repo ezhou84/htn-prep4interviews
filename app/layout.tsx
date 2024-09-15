@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 const dmSans = DM_Sans({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Prep4Interviews",
+  title: "LowkeyPrepped",
   description: "Prepare for interviews!",
 };
 
