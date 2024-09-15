@@ -14,6 +14,7 @@ import { useUser } from "@clerk/nextjs";
 type Props = {
   title: string;
   action?: React.ReactNode;
+  children?: React.ReactNode;
 };
 
 const InterviewForm: React.FC = () => {
