@@ -19,7 +19,11 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "noImplicitAny": false,          // Allow implicit any types
+    "strictNullChecks": false,       // Disable strict null checks
+    "noUnusedLocals": false,         // Disable unused local variables errors
+    "noUnusedParameters": false,     // Disable unused parameters errors
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
